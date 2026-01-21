@@ -1,0 +1,76 @@
+<div class="login-container">
+  <div class="login-card glass-card animate-fade-in">
+    <div class="login-header">
+      <div class="logo">💰</div>
+      <h1>AI Finance Dashboard</h1>
+      <p>Manage your finances with AI-powered insights</p>
+    </div>
+
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-actions">
+        <a href="#" class="forgot-password">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-login" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Signing in...</span>
+      </button>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <button type="button" class="btn-demo" (click)="onLogin()">
+        🚀 Try Demo
+      </button>
+
+      <p class="signup-link">
+        Don't have an account? <a href="#">Sign up</a>
+      </p>
+    </form>
+  </div>
+
+  <div class="features animate-slide-up">
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <h3>Smart Analytics</h3>
+      <p>Track spending patterns and visualize your financial health</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🤖</div>
+      <h3>AI Insights</h3>
+      <p>Get personalized recommendations to optimize your finances</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔒</div>
+      <h3>Secure & Private</h3>
+      <p>Your data is encrypted and protected with AWS security</p>
+    </div>
+  </div>
+</div>
