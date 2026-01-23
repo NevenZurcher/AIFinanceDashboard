@@ -1,10 +1,10 @@
 .dashboard-container {
     min-height: 100vh;
     padding: var(--spacing-xl);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--background);
 
     @media (max-width: 640px) {
-        padding: var(--spacing-md);
+        padding: var(--spacing-sm);
     }
 }
 
@@ -25,10 +25,8 @@
 
         h1 {
             font-size: var(--font-size-3xl);
-            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
+            letter-spacing: var(--letter-spacing-tight);
             margin-bottom: var(--spacing-xs);
         }
     }
@@ -57,18 +55,19 @@
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 12px 40px 0 var(--glass-shadow);
+        box-shadow: 0 12px 40px 0 var(--glass-shadow),
+            0 0 0 1px rgba(34, 211, 238, 0.1);
     }
 
     .card-icon {
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
         border-radius: var(--radius-lg);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: var(--font-size-2xl);
         flex-shrink: 0;
+        color: white;
     }
 
     .card-content {
@@ -198,9 +197,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: var(--font-size-xl);
         background: var(--surface);
         flex-shrink: 0;
+
+        lucide-icon {
+            display: flex;
+        }
     }
 
     .insight-content {
@@ -249,18 +251,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: var(--font-size-xl);
-        font-weight: var(--font-weight-bold);
         flex-shrink: 0;
 
+        lucide-icon {
+            display: flex;
+        }
+
         &.icon-income {
-            background: rgba(76, 175, 80, 0.1);
-            color: var(--accent-500);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-600);
         }
 
         &.icon-expense {
-            background: rgba(244, 67, 54, 0.1);
-            color: var(--error-500);
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--error-600);
         }
     }
 
@@ -315,14 +319,18 @@
         margin-bottom: var(--spacing-lg);
 
         .account-icon {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: var(--radius-md);
-            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            background: linear-gradient(135deg, var(--accent-600), var(--accent-500));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: var(--font-size-2xl);
+            color: white;
+
+            lucide-icon {
+                display: flex;
+            }
         }
 
         .account-info {
@@ -371,17 +379,18 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    background: var(--accent-600);
     color: white;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
 
     &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
+        background: var(--accent-700);
+        box-shadow: var(--shadow-md);
     }
 
     &:active {
         transform: translateY(0);
+        background: var(--accent-800);
     }
 }
 
@@ -392,16 +401,18 @@
 
     &:hover {
         background: var(--surface-variant);
+        border-color: var(--primary-300);
     }
 }
 
 .btn-text {
     background: transparent;
-    color: var(--primary-500);
+    color: var(--accent-600);
     padding: var(--spacing-xs) var(--spacing-sm);
 
     &:hover {
-        background: rgba(0, 151, 183, 0.1);
+        background: rgba(8, 145, 178, 0.08);
+        color: var(--accent-700);
     }
 }
 

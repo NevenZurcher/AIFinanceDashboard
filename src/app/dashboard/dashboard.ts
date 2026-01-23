@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
+import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info } from 'lucide-angular';
 
 Chart.register(...registerables);
 
@@ -28,11 +29,27 @@ interface AIInsight {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
 export class DashboardComponent implements OnInit {
+  // Lucide Icons
+  readonly TrendingUp = TrendingUp;
+  readonly ArrowUpRight = ArrowUpRight;
+  readonly ArrowDownRight = ArrowDownRight;
+  readonly Target = Target;
+  readonly Sparkles = Sparkles;
+  readonly ArrowUp = ArrowUp;
+  readonly ArrowDown = ArrowDown;
+  readonly Building2 = Building2;
+  readonly Wallet = Wallet;
+  readonly CreditCard = CreditCard;
+  readonly BarChart3 = BarChart3;
+  readonly CheckCircle = CheckCircle;
+  readonly AlertTriangle = AlertTriangle;
+  readonly Info = Info;
+
   // Mock data - will be replaced with real API calls
   accounts: Account[] = [
     { id: '1', name: 'Checking Account', type: 'checking', balance: 5420.50 },
@@ -132,12 +149,12 @@ export class DashboardComponent implements OnInit {
         datasets: [{
           data: data,
           backgroundColor: [
-            '#0097b7',
-            '#4caf50',
-            '#ff9800',
-            '#f44336',
-            '#2196f3',
-            '#9c27b0'
+            '#0891B2',
+            '#10B981',
+            '#F59E0B',
+            '#F43F5E',
+            '#3B82F6',
+            '#8B5CF6'
           ],
           borderWidth: 0
         }]
@@ -151,7 +168,7 @@ export class DashboardComponent implements OnInit {
             labels: {
               padding: 15,
               font: {
-                family: 'Inter',
+                family: 'DM Sans',
                 size: 12
               }
             }
@@ -187,16 +204,16 @@ export class DashboardComponent implements OnInit {
           {
             label: 'Income',
             data: incomeData,
-            borderColor: '#4caf50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
             tension: 0.4,
             fill: true
           },
           {
             label: 'Expenses',
             data: expenseData,
-            borderColor: '#f44336',
-            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            borderColor: '#F43F5E',
+            backgroundColor: 'rgba(244, 63, 94, 0.1)',
             tension: 0.4,
             fill: true
           }
@@ -211,7 +228,7 @@ export class DashboardComponent implements OnInit {
             labels: {
               padding: 15,
               font: {
-                family: 'Inter',
+                family: 'DM Sans',
                 size: 12
               }
             }
@@ -236,15 +253,6 @@ export class DashboardComponent implements OnInit {
         }
       }
     });
-  }
-
-  getInsightIcon(type: string): string {
-    switch (type) {
-      case 'success': return '✓';
-      case 'warning': return '⚠';
-      case 'info': return 'ℹ';
-      default: return '•';
-    }
   }
 
   ngOnDestroy() {

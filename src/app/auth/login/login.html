@@ -1,7 +1,9 @@
 <div class="login-container">
   <div class="login-card glass-card animate-fade-in">
     <div class="login-header">
-      <div class="logo">💰</div>
+      <div class="logo">
+        <lucide-icon [img]="TrendingUp" [size]="48" [strokeWidth]="2"></lucide-icon>
+      </div>
       <h1>AI Finance Dashboard</h1>
       <p>Manage your finances with AI-powered insights</p>
     </div>
@@ -47,7 +49,8 @@
       </div>
 
       <button type="button" class="btn-demo" (click)="onLogin()">
-        🚀 Try Demo
+        <lucide-icon [img]="Zap" [size]="18" [strokeWidth]="2"></lucide-icon>
+        Try Demo
       </button>
 
       <p class="signup-link">
@@ -58,19 +61,25 @@
 
   <div class="features animate-slide-up">
     <div class="feature">
-      <div class="feature-icon">📊</div>
+      <div class="feature-icon">
+        <lucide-icon [img]="BarChart3" [size]="32" [strokeWidth]="2"></lucide-icon>
+      </div>
       <h3>Smart Analytics</h3>
       <p>Track spending patterns and visualize your financial health</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">🤖</div>
+      <div class="feature-icon">
+        <lucide-icon [img]="Sparkles" [size]="32" [strokeWidth]="2"></lucide-icon>
+      </div>
       <h3>AI Insights</h3>
       <p>Get personalized recommendations to optimize your finances</p>
     </div>
     <div class="feature">
-      <div class="feature-icon">🔒</div>
+      <div class="feature-icon">
+        <lucide-icon [img]="Shield" [size]="32" [strokeWidth]="2"></lucide-icon>
+      </div>
       <h3>Secure & Private</h3>
-      <p>Your data is encrypted and protected with AWS security</p>
+      <p>Your data is encrypted and protected with Azure security</p>
     </div>
   </div>
 </div>
