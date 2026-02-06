@@ -79,10 +79,15 @@
     padding: var(--spacing-sm);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    background: var(--background-color);
+    background: var(--background);
     color: var(--text-primary);
     font-size: var(--font-size-base);
     transition: all 0.2s;
+}
+
+.form-group select option {
+    background-color: var(--surface);
+    color: var(--text-primary);
 }
 
 .form-group input:focus,
