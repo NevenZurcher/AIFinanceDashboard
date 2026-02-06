@@ -87,32 +87,6 @@
     </div>
   </section>
 
-
-  <!-- Quick Actions / Navigation -->
-  <section class="quick-actions-section animate-slide-up">
-    <div class="actions-grid">
-      <div class="action-card glass-card" (click)="navigateToAnalytics()" style="cursor: pointer;">
-        <div class="action-icon" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">
-          <lucide-icon [img]="BarChart3" [size]="28"></lucide-icon>
-        </div>
-        <div class="action-content">
-          <h3>Analytics</h3>
-          <p>View detailed charts and spending insights</p>
-        </div>
-      </div>
-
-      <div class="action-card glass-card" (click)="navigateToIncome()" style="cursor: pointer;">
-        <div class="action-icon" style="background: linear-gradient(135deg, #10B981, #34D399);">
-          <lucide-icon [img]="ArrowUpRight" [size]="28"></lucide-icon>
-        </div>
-        <div class="action-content">
-          <h3>Income Streams</h3>
-          <p>Manage your recurring income sources</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Accounts Overview -->
   <section class="accounts-section animate-slide-up">
     <div class="section-header">
@@ -142,6 +116,31 @@
           <h3 [ngClass]="account.balance < 0 ? 'text-error' : 'text-primary'">
             ${{ account.balance.toFixed(2) }}
           </h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions / Navigation -->
+  <section class="quick-actions-section animate-slide-up">
+    <div class="actions-grid">
+      <div class="action-card glass-card" (click)="navigateToAnalytics()" style="cursor: pointer;">
+        <div class="action-icon" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">
+          <lucide-icon [img]="BarChart3" [size]="28"></lucide-icon>
+        </div>
+        <div class="action-content">
+          <h3>Analytics</h3>
+          <p>View detailed charts and spending insights</p>
+        </div>
+      </div>
+
+      <div class="action-card glass-card" (click)="navigateToIncome()" style="cursor: pointer;">
+        <div class="action-icon" style="background: linear-gradient(135deg, #10B981, #34D399);">
+          <lucide-icon [img]="ArrowUpRight" [size]="28"></lucide-icon>
+        </div>
+        <div class="action-content">
+          <h3>Income Streams</h3>
+          <p>Manage your recurring income sources</p>
         </div>
       </div>
     </div>
