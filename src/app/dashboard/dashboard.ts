@@ -2,16 +2,12 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Chart, registerables } from 'chart.js';
+
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2 } from 'lucide-angular';
 
-// ... (existing code)
 
-
-
-Chart.register(...registerables);
 
 interface Account {
   id: string;
@@ -130,10 +126,6 @@ export class DashboardComponent implements OnInit {
   budgetUsedPercentage = 0;
   budgetRemaining = 0;
 
-  // Charts
-  private categoryChart: Chart | null = null;
-  private trendChart: Chart | null = null;
-
   // ...
 
   calculateSummary() {
@@ -177,9 +169,7 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    setTimeout(() => {
-      this.initCharts();
-    }, 100);
+
   }
 
   async loadData() {
@@ -344,149 +334,11 @@ export class DashboardComponent implements OnInit {
 
 
 
-  initCharts() {
-    this.initCategoryChart();
-    this.initTrendChart();
+  navigateToAnalytics() {
+    this.router.navigate(['/analytics']);
   }
 
-  initCategoryChart() {
-    const canvas = document.getElementById('categoryChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Group expenses by category
-    const categoryData: { [key: string]: number } = {};
-    this.transactions
-      .filter(t => t.type === 'expense')
-      .forEach(t => {
-        const category = t.category || 'Other';
-        categoryData[category] = (categoryData[category] || 0) + Math.abs(t.amount);
-      });
-
-    const labels = Object.keys(categoryData);
-    const data = Object.values(categoryData);
-
-    this.categoryChart = new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: [
-            '#0891B2',
-            '#10B981',
-            '#F59E0B',
-            '#F43F5E',
-            '#3B82F6',
-            '#8B5CF6'
-          ],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              padding: 15,
-              font: {
-                family: 'DM Sans',
-                size: 12
-              }
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const label = context.label || '';
-                const value = context.parsed || 0;
-                return `${label}: $${value.toFixed(2)}`;
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  initTrendChart() {
-    const canvas = document.getElementById('trendChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Mock monthly data for the last 6 months
-    const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
-    // const incomeData = [4800, 5200, 5000, 5100, 5300, 5800];
-    const expenseData = [1800, 2100, 1950, 2300, 1900, 2050];
-    const budgetData = months.map(() => this.monthlyBudget); // Constant budget line
-
-    this.trendChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [
-          {
-            label: 'Monthly Budget',
-            data: budgetData,
-            borderColor: '#0891B2', // Cyan for budget
-            borderDash: [5, 5], // Dashed line for goal
-            backgroundColor: 'transparent',
-            pointRadius: 0,
-            tension: 0,
-            fill: false
-          },
-          {
-            label: 'Actual Spending',
-            data: expenseData,
-            borderColor: '#F43F5E',
-            backgroundColor: 'rgba(244, 63, 94, 0.1)',
-            tension: 0.4,
-            fill: true
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              padding: 15,
-              font: {
-                family: 'DM Sans',
-                size: 12
-              }
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const label = context.dataset.label || '';
-                const value = context.parsed.y || 0;
-                return `${label}: $${value.toFixed(2)}`;
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (value) => '$' + value
-            }
-          }
-        }
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.categoryChart) {
-      this.categoryChart.destroy();
-    }
-    if (this.trendChart) {
-      this.trendChart.destroy();
-    }
+  navigateToIncome() {
+    this.router.navigate(['/income']);
   }
 }

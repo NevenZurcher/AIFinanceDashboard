@@ -1,0 +1,24 @@
+<div class="analytics-container">
+  <header class="analytics-header glass-card">
+    <button class="btn-secondary" (click)="goBack()">← Back to Dashboard</button>
+    <h1>Analytics</h1>
+  </header>
+
+  <section class="charts-section">
+    <div class="charts-grid">
+      <div class="chart-card glass-card">
+        <h3>Spending by Category</h3>
+        <div class="chart-container">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <h3>Budget vs Spending Trend</h3>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

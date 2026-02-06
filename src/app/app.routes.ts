@@ -12,4 +12,14 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/dashboard').then(m => m.DashboardComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'analytics',
+    loadComponent: () => import('./analytics/analytics').then(m => m.AnalyticsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'income',
+    loadComponent: () => import('./income/income').then(m => m.IncomeComponent),
+    canActivate: [authGuard]
+  },
 ];
