@@ -75,6 +75,7 @@ export class DashboardComponent implements OnInit {
   newTransactionCategory = '';
   newTransactionDescription = '';
   newTransactionDate = new Date().toISOString().split('T')[0];
+  newTransactionToAccountId = ''; // For transfers
 
   // User info
   userName = '';
@@ -270,14 +271,44 @@ export class DashboardComponent implements OnInit {
 
     this.isLoading = true;
     try {
-      await this.apiService.createTransaction({
-        accountId: this.newTransactionAccountId,
-        amount: this.newTransactionAmount,
-        category: this.newTransactionCategory,
-        description: this.newTransactionDescription,
-        date: new Date(this.newTransactionDate),
-        type: this.newTransactionType as 'income' | 'expense'
-      } as any);
+      // Handle transfers differently - create two transactions
+      if (this.newTransactionType === 'transfer') {
+        if (!this.newTransactionToAccountId) {
+          alert('Please select a destination account for the transfer');
+          this.isLoading = false;
+          return;
+        }
+
+        // Create withdrawal from source account
+        await this.apiService.createTransaction({
+          accountId: this.newTransactionAccountId,
+          amount: -Math.abs(this.newTransactionAmount),
+          category: 'Transfer',
+          description: `Transfer to ${this.accounts.find(a => a.id === this.newTransactionToAccountId)?.name || 'account'}`,
+          date: new Date(this.newTransactionDate),
+          type: 'expense'
+        } as any);
+
+        // Create deposit to destination account
+        await this.apiService.createTransaction({
+          accountId: this.newTransactionToAccountId,
+          amount: Math.abs(this.newTransactionAmount),
+          category: 'Transfer',
+          description: `Transfer from ${this.accounts.find(a => a.id === this.newTransactionAccountId)?.name || 'account'}`,
+          date: new Date(this.newTransactionDate),
+          type: 'income'
+        } as any);
+      } else {
+        // Regular transaction
+        await this.apiService.createTransaction({
+          accountId: this.newTransactionAccountId,
+          amount: this.newTransactionAmount,
+          category: this.newTransactionCategory,
+          description: this.newTransactionDescription,
+          date: new Date(this.newTransactionDate),
+          type: this.newTransactionType as 'income' | 'expense'
+        } as any);
+      }
 
       this.showAddTransactionModal = false;
       // Reset form
@@ -286,6 +317,7 @@ export class DashboardComponent implements OnInit {
       this.newTransactionCategory = '';
       this.newTransactionDescription = '';
       this.newTransactionDate = new Date().toISOString().split('T')[0];
+      this.newTransactionToAccountId = '';
 
       await this.loadData();
     } catch (error) {
