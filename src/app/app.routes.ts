@@ -22,4 +22,9 @@ export const routes: Routes = [
     loadComponent: () => import('./income/income').then(m => m.IncomeComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'expenses',
+    loadComponent: () => import('./expenses/expenses').then(m => m.ExpensesComponent),
+    canActivate: [authGuard]
+  },
 ];

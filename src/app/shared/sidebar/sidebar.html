@@ -1,35 +1,43 @@
-<aside class="sidebar" [class.collapsed]="isCollapsed">
-  <div class="sidebar-header">
-    <h2 *ngIf="!isCollapsed">WiseWallet</h2>
-    <button class="toggle-btn" (click)="toggleSidebar()">
-      <lucide-icon [img]="X" [size]="20"></lucide-icon>
-    </button>
-  </div>
+<ng-container *ngIf="!isLoginPage">
+  <aside class="sidebar" [class.collapsed]="isCollapsed">
+    <ng-container *ngIf="!isCollapsed">
+      <div class="sidebar-header">
+        <h2>WiseWallet</h2>
+        <button class="toggle-btn" (click)="toggleSidebar()">
+          <lucide-icon [img]="X" [size]="20"></lucide-icon>
+        </button>
+      </div>
 
-  <nav class="sidebar-nav">
-    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-      <lucide-icon [img]="Home" [size]="20"></lucide-icon>
-      <span>Dashboard</span>
-    </a>
-    <a routerLink="/analytics" routerLinkActive="active" class="nav-item">
-      <lucide-icon [img]="BarChart3" [size]="20"></lucide-icon>
-      <span>Analytics</span>
-    </a>
-    <a routerLink="/income" routerLinkActive="active" class="nav-item">
-      <lucide-icon [img]="DollarSign" [size]="20"></lucide-icon>
-      <span>Income</span>
-    </a>
-  </nav>
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Home" [size]="20"></lucide-icon>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/analytics" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="BarChart3" [size]="20"></lucide-icon>
+          <span>Analytics</span>
+        </a>
+        <a routerLink="/income" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="DollarSign" [size]="20"></lucide-icon>
+          <span>Income</span>
+        </a>
+        <a routerLink="/expenses" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="Receipt" [size]="20"></lucide-icon>
+          <span>Expenses</span>
+        </a>
+      </nav>
 
-  <div class="sidebar-footer">
-    <button class="nav-item logout-btn" (click)="logout()">
-      <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
-      <span>Sign Out</span>
-    </button>
-  </div>
-</aside>
+      <div class="sidebar-footer">
+        <button class="nav-item logout-btn" (click)="logout()">
+          <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </ng-container>
+  </aside>
 
-<!-- Floating toggle when collapsed -->
-<button *ngIf="isCollapsed" class="floating-toggle" (click)="toggleSidebar()">
-  <lucide-icon [img]="Menu" [size]="24"></lucide-icon>
-</button>
+  <!-- Floating toggle when collapsed -->
+  <button *ngIf="isCollapsed" class="floating-toggle" (click)="toggleSidebar()">
+    <lucide-icon [img]="Menu" [size]="24"></lucide-icon>
+  </button>
+</ng-container>

@@ -134,4 +134,58 @@ export class ApiService {
             this.http.delete(`${this.apiUrl}/DeleteTransaction?id=${id}`, { headers })
         );
     }
+
+    // Income Streams
+    async getIncomeStreams(): Promise<IncomeStream[]> {
+        const headers = await this.getHeaders();
+        const response: any = await firstValueFrom(
+            this.http.get(`${this.apiUrl}/GetIncomeStreams`, { headers })
+        );
+        return (response.data || []).map((stream: any) => ({
+            ...stream,
+            amount: Number(stream.amount)
+        }));
+    }
+
+    async createIncomeStream(stream: Partial<IncomeStream>): Promise<IncomeStream> {
+        const headers = await this.getHeaders();
+        const response: any = await firstValueFrom(
+            this.http.post(`${this.apiUrl}/CreateIncomeStream`, stream, { headers })
+        );
+        return {
+            ...response.data,
+            amount: Number(response.data.amount)
+        };
+    }
+
+    async updateIncomeStream(id: string, stream: Partial<IncomeStream>): Promise<IncomeStream> {
+        const headers = await this.getHeaders();
+        const response: any = await firstValueFrom(
+            this.http.put(`${this.apiUrl}/UpdateIncomeStream?id=${id}`, stream, { headers })
+        );
+        return {
+            ...response.data,
+            amount: Number(response.data.amount)
+        };
+    }
+
+    async deleteIncomeStream(id: string): Promise<void> {
+        const headers = await this.getHeaders();
+        await firstValueFrom(
+            this.http.delete(`${this.apiUrl}/DeleteIncomeStream?id=${id}`, { headers })
+        );
+    }
+}
+
+export interface IncomeStream {
+    id: string;
+    name: string;
+    amount: number;
+    frequency: string;
+    accountId?: string;
+    accountName?: string;
+    isActive?: boolean;
+    lastDepositDate?: Date;
+    nextDepositDate?: Date;
+    createdAt?: Date;
 }

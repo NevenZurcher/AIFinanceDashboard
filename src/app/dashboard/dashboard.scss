@@ -353,9 +353,12 @@
 }
 
 .account-card {
+    position: relative;
+
     .account-header {
         display: flex;
         gap: var(--spacing-md);
+        align-items: center;
         margin-bottom: var(--spacing-lg);
 
         .account-icon {
@@ -367,14 +370,10 @@
             align-items: center;
             justify-content: center;
             color: white;
+            flex-shrink: 0;
 
             lucide-icon {
                 display: flex;
-            }
-
-            button {
-                opacity: 0;
-                transition: opacity 0.2s ease-in-out;
             }
         }
 
@@ -391,9 +390,35 @@
                 margin: 0;
             }
         }
+
+        .account-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+
+            .btn-icon {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: var(--spacing-xs);
+                border-radius: var(--radius-md);
+                color: var(--text-secondary);
+                transition: all var(--transition-fast);
+
+                &:hover {
+                    background: var(--surface-variant);
+                    color: var(--text-primary);
+                }
+
+                &:last-child:hover {
+                    background: rgba(244, 63, 94, 0.1);
+                }
+            }
+        }
     }
 
-    &:hover .account-header .account-icon button {
+    &:hover .account-header .account-actions {
         opacity: 1;
     }
 
