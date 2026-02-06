@@ -1,10 +1,13 @@
 -- Income Streams Table Migration
 -- Run this to add income_streams table to your PostgreSQL database
 
-CREATE TABLE IF NOT EXISTS income_streams (
+-- Drop existing table if it exists (for clean re-creation)
+DROP TABLE IF EXISTS income_streams CASCADE;
+
+CREATE TABLE income_streams (
     income_stream_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    account_id INTEGER REFERENCES accounts(account_id) ON DELETE SET NULL,
+    user_id INTEGER NOT NULL,
+    account_id INTEGER,
     name VARCHAR(255) NOT NULL,
     amount DECIMAL(12, 2) NOT NULL CHECK (amount >= 0),
     frequency VARCHAR(50) NOT NULL DEFAULT 'monthly',
@@ -32,6 +35,3 @@ CREATE TRIGGER income_streams_updated_at
     BEFORE UPDATE ON income_streams
     FOR EACH ROW
     EXECUTE FUNCTION update_income_streams_updated_at();
-
--- Display success
-SELECT 'Income Streams table created successfully!' AS status;
