@@ -19,6 +19,8 @@ interface IncomeStream {
   frequency: 'monthly' | 'bi-weekly' | 'weekly';
   accountId: string;
   accountName?: string;
+  lastDepositDate?: string;
+  nextDepositDate?: string;
 }
 
 @Component({
@@ -82,13 +84,16 @@ export class IncomeComponent implements OnInit {
     }
 
     const account = this.accounts.find(a => a.id === this.newStreamAccountId);
+    const now = new Date();
     const newStream: IncomeStream = {
       id: Date.now().toString(),
       name: this.newStreamName,
       amount: this.newStreamAmount,
       frequency: this.newStreamFrequency,
       accountId: this.newStreamAccountId,
-      accountName: account?.name
+      accountName: account?.name,
+      lastDepositDate: now.toISOString(),
+      nextDepositDate: this.calculateNextDepositDate(now, this.newStreamFrequency)
     };
 
     this.incomeStreams.push(newStream);
@@ -125,7 +130,28 @@ export class IncomeComponent implements OnInit {
     }, 0);
   }
 
-  goBack() {
-    this.router.navigate(['/dashboard']);
+  calculateNextDepositDate(fromDate: Date, frequency: 'monthly' | 'bi-weekly' | 'weekly'): string {
+    const next = new Date(fromDate);
+    if (frequency === 'weekly') {
+      next.setDate(next.getDate() + 7);
+    } else if (frequency === 'bi-weekly') {
+      next.setDate(next.getDate() + 14);
+    } else {
+      next.setMonth(next.getMonth() + 1);
+    }
+    return next.toISOString();
+  }
+
+  formatDate(dateString?: string): string {
+    if (!dateString) return 'Never';
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  getDaysUntilNextDeposit(nextDepositDate?: string): number {
+    if (!nextDepositDate) return 0;
+    const now = new Date();
+    const next = new Date(nextDepositDate);
+    const diff = next.getTime() - now.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
 }

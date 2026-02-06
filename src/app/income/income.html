@@ -1,6 +1,5 @@
 <div class="income-container">
   <header class="income-header glass-card">
-    <button class="btn-secondary" (click)="goBack()">← Back to Dashboard</button>
     <div class="header-content">
       <h1>Income Streams</h1>
       <button class="btn-primary" (click)="showAddModal = true">
@@ -43,6 +42,16 @@
           <div class="detail-item">
             <lucide-icon [img]="Calendar" [size]="16"></lucide-icon>
             <span>{{ stream.frequency | titlecase }}</span>
+          </div>
+        </div>
+        <div class="deposit-info">
+          <div class="deposit-item">
+            <span class="deposit-label">Last Deposit:</span>
+            <span class="deposit-value">{{ formatDate(stream.lastDepositDate) }}</span>
+          </div>
+          <div class="deposit-item">
+            <span class="deposit-label">Next Deposit:</span>
+            <span class="deposit-value">{{ formatDate(stream.nextDepositDate) }} ({{ getDaysUntilNextDeposit(stream.nextDepositDate) }} days)</span>
           </div>
         </div>
       </div>

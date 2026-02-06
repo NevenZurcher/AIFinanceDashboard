@@ -1,0 +1,9 @@
+.main-content {
+    margin-left: 240px;
+    min-height: 100vh;
+    transition: margin-left var(--transition-base);
+
+    @media (max-width: 768px) {
+        margin-left: 70px;
+    }
+}

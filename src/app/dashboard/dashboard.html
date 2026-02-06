@@ -11,16 +11,9 @@
             <span style="font-size: 14px; color: var(--text-secondary);">Budget: $</span>
             <input type="number" [(ngModel)]="monthlyBudget" (change)="calculateSummary()" style="width: 70px; background: transparent; border: none; color: var(--text-primary); font-weight: bold; font-size: 16px;">
         </div>
-        <button class="btn-primary" (click)="showAddAccountModal = true">
-          <lucide-icon [img]="Wallet" [size]="18"></lucide-icon>
-          Add Account
-        </button>
         <button class="btn-primary" (click)="showAddTransactionModal = true">
           <lucide-icon [img]="ArrowUpRight" [size]="18"></lucide-icon>
           Add Transaction
-        </button>
-        <button class="btn-secondary" (click)="logout()">
-          Sign Out
         </button>
       </div>
     </div>
@@ -121,32 +114,7 @@
     </div>
   </section>
 
-  <!-- Quick Actions / Navigation -->
-  <section class="quick-actions-section animate-slide-up">
-    <div class="actions-grid">
-      <div class="action-card glass-card" (click)="navigateToAnalytics()" style="cursor: pointer;">
-        <div class="action-icon" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">
-          <lucide-icon [img]="BarChart3" [size]="28"></lucide-icon>
-        </div>
-        <div class="action-content">
-          <h3>Analytics</h3>
-          <p>View detailed charts and spending insights</p>
-        </div>
-      </div>
 
-      <div class="action-card glass-card" (click)="navigateToIncome()" style="cursor: pointer;">
-        <div class="action-icon" style="background: linear-gradient(135deg, #10B981, #34D399);">
-          <lucide-icon [img]="ArrowUpRight" [size]="28"></lucide-icon>
-        </div>
-        <div class="action-content">
-          <h3>Income Streams</h3>
-          <p>Manage your recurring income sources</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AI Insights & Recent Transactions -->
   <section class="bottom-section">
     <div class="bottom-grid">
       <!-- AI Insights -->
