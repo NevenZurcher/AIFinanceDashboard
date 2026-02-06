@@ -124,6 +124,32 @@
             }
         }
 
+        .stream-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+
+            .btn-icon-edit,
+            .btn-icon-delete {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: var(--spacing-xs);
+                border-radius: var(--radius-md);
+                transition: background var(--transition-fast);
+                color: var(--text-secondary);
+
+                &:hover {
+                    background: var(--surface-variant);
+                    color: var(--text-primary);
+                }
+            }
+
+            .btn-icon-delete:hover {
+                background: rgba(244, 63, 94, 0.1);
+                color: var(--error-500);
+            }
+        }
+
         .stream-details {
             display: flex;
             gap: var(--spacing-lg);

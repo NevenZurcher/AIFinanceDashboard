@@ -73,6 +73,17 @@ export class ApiService {
         };
     }
 
+    async updateAccount(id: string, account: Partial<Account>): Promise<Account> {
+        const headers = await this.getHeaders();
+        const response: any = await firstValueFrom(
+            this.http.put(`${this.apiUrl}/UpdateAccount?id=${id}`, account, { headers })
+        );
+        return {
+            ...response.data,
+            balance: Number(response.data.balance)
+        };
+    }
+
     // Transactions
     async getTransactions(limit: number = 50, accountId?: string): Promise<Transaction[]> {
         const headers = await this.getHeaders();

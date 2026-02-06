@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2, Edit } from 'lucide-angular';
 
 
 
@@ -58,10 +58,13 @@ export class DashboardComponent implements OnInit {
   readonly AlertTriangle = AlertTriangle;
   readonly Info = Info;
   readonly Trash2 = Trash2;
+  readonly Edit = Edit;
 
   // Modal states
   showAddAccountModal = false;
   showAddTransactionModal = false;
+  showEditAccountModal = false;
+  editingAccount: Account = { id: '', name: '', type: 'checking', balance: 0 };
 
   // Form fields for Add Account
   newAccountName = '';
@@ -222,6 +225,34 @@ export class DashboardComponent implements OnInit {
     } catch (error) {
       console.error('Error creating account:', error);
       alert('Failed to create account. Please try again.');
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
+  }
+
+  editAccount(account: Account) {
+    this.editingAccount = { ...account };
+    this.showEditAccountModal = true;
+  }
+
+  async saveEditedAccount() {
+    if (this.isLoading) return;
+    if (!this.editingAccount.name) {
+      alert('Please enter an account name');
+      return;
+    }
+    this.isLoading = true;
+    try {
+      await this.apiService.updateAccount(this.editingAccount.id, {
+        name: this.editingAccount.name,
+        type: this.editingAccount.type
+      });
+      this.showEditAccountModal = false;
+      await this.loadData();
+    } catch (error) {
+      console.error('Error updating account:', error);
+      alert('Failed to update account. Please try again.');
     } finally {
       this.isLoading = false;
       this.cd.detectChanges();

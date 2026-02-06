@@ -95,9 +95,14 @@
               [size]="24" 
               [strokeWidth]="2"
             ></lucide-icon>
-            <button class="btn-icon" (click)="deleteAccount(account.id)" [disabled]="isLoading" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer;">
+            <div class="account-actions" style="position: absolute; top: 15px; right: 15px; display: flex; gap: 4px;">
+              <button class="btn-icon" (click)="editAccount(account)" [disabled]="isLoading" style="background: none; border: none; cursor: pointer;">
+                <lucide-icon [img]="Edit" [size]="16" color="rgba(255, 255, 255, 0.6)"></lucide-icon>
+              </button>
+              <button class="btn-icon" (click)="deleteAccount(account.id)" [disabled]="isLoading" style="background: none; border: none; cursor: pointer;">
                 <lucide-icon [img]="Trash2" [size]="16" class="text-error" color="rgba(255, 99, 71, 0.6)"></lucide-icon>
-            </button>
+              </button>
+            </div>
           </div>
           <div class="account-info">
             <h4>{{ account.name }}</h4>
@@ -262,6 +267,37 @@
           <button class="btn-secondary" (click)="showAddTransactionModal = false">Cancel</button>
           <button class="btn-primary" (click)="createTransaction()" [disabled]="isLoading">
             {{ isLoading ? 'Adding...' : 'Add Transaction' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Account Modal -->
+  <div *ngIf="showEditAccountModal" class="modal-overlay" (click)="showEditAccountModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit Account</h2>
+        <button class="close-btn" (click)="showEditAccountModal = false">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Account Name</label>
+          <input type="text" [(ngModel)]="editingAccount.name" placeholder="e.g., Checking Account">
+        </div>
+        <div class="form-group">
+          <label>Account Type</label>
+          <select [(ngModel)]="editingAccount.type">
+            <option value="checking">Checking</option>
+            <option value="savings">Savings</option>
+            <option value="credit">Credit Card</option>
+            <option value="roth">Roth IRA</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="showEditAccountModal = false">Cancel</button>
+          <button class="btn-primary" (click)="saveEditedAccount()" [disabled]="isLoading">
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
           </button>
         </div>
       </div>

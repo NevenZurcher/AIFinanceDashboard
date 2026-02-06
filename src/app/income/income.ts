@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
-import { LucideAngularModule, DollarSign, Calendar, Wallet, Plus, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Calendar, Wallet, Plus, Trash2, Edit } from 'lucide-angular';
 
 interface Account {
   id: string;
@@ -35,11 +35,14 @@ export class IncomeComponent implements OnInit {
   readonly Wallet = Wallet;
   readonly Plus = Plus;
   readonly Trash2 = Trash2;
+  readonly Edit = Edit;
 
   accounts: Account[] = [];
   incomeStreams: IncomeStream[] = [];
 
   showAddModal = false;
+  showEditModal = false;
+  editingStream: IncomeStream = { id: '', name: '', amount: 0, frequency: 'monthly', accountId: '' };
   newStreamName = '';
   newStreamAmount = 0;
   newStreamFrequency: 'monthly' | 'bi-weekly' | 'weekly' = 'monthly';
@@ -82,6 +85,10 @@ export class IncomeComponent implements OnInit {
       alert('Please fill in all fields');
       return;
     }
+    if (this.newStreamAmount < 0) {
+      alert('Income amount cannot be negative');
+      return;
+    }
 
     const account = this.accounts.find(a => a.id === this.newStreamAccountId);
     const now = new Date();
@@ -112,6 +119,31 @@ export class IncomeComponent implements OnInit {
 
     this.incomeStreams = this.incomeStreams.filter(s => s.id !== id);
     this.saveStreams();
+  }
+
+  editStream(stream: IncomeStream) {
+    this.editingStream = { ...stream };
+    this.showEditModal = true;
+  }
+
+  saveEditedStream() {
+    if (!this.editingStream.name || !this.editingStream.amount || !this.editingStream.accountId) {
+      alert('Please fill in all fields');
+      return;
+    }
+    if (this.editingStream.amount < 0) {
+      alert('Income amount cannot be negative');
+      return;
+    }
+
+    const account = this.accounts.find(a => a.id === this.editingStream.accountId);
+    const index = this.incomeStreams.findIndex(s => s.id === this.editingStream.id);
+    if (index !== -1) {
+      this.editingStream.accountName = account?.name;
+      this.incomeStreams[index] = { ...this.editingStream };
+      this.saveStreams();
+    }
+    this.showEditModal = false;
   }
 
   saveStreams() {
