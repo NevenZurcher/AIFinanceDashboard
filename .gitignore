@@ -7,7 +7,16 @@
 /bazel-out
 
 # Node
-/node_modules
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+*.log
+
+# Secrets
+wisewallet-*.json
+*-firebase-adminsdk-*.json
+azure_connection_string.txt
 npm-debug.log
 yarn-error.log
 
@@ -42,3 +51,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Azure Functions
+azure-functions/local.settings.json
+azure-functions/service-account.json

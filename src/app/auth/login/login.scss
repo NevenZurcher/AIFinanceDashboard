@@ -60,6 +60,16 @@
     gap: var(--spacing-lg);
 }
 
+.error-message {
+    padding: var(--spacing-sm);
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid var(--error-500);
+    border-radius: var(--radius-md);
+    color: var(--error-500);
+    font-size: var(--font-size-sm);
+    text-align: center;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;

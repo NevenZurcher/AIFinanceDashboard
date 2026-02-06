@@ -1,7 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
-import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info } from 'lucide-angular';
+import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
+import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2 } from 'lucide-angular';
+
+// ... (existing code)
+
+
 
 Chart.register(...registerables);
 
@@ -14,9 +22,9 @@ interface Account {
 
 interface Transaction {
   id: string;
-  description: string;
+  description?: string;
   amount: number;
-  category: string;
+  category?: string;
   date: Date;
   type: 'income' | 'expense';
 }
@@ -29,7 +37,11 @@ interface AIInsight {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LucideAngularModule
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -49,6 +61,28 @@ export class DashboardComponent implements OnInit {
   readonly CheckCircle = CheckCircle;
   readonly AlertTriangle = AlertTriangle;
   readonly Info = Info;
+  readonly Trash2 = Trash2;
+
+  // Modal states
+  showAddAccountModal = false;
+  showAddTransactionModal = false;
+
+  // Form fields for Add Account
+  newAccountName = '';
+  newAccountType = 'checking';
+  newAccountBalance = 0;
+
+  // Form fields for Add Transaction
+  newTransactionAccountId = '';
+  newTransactionType = 'expense';
+  newTransactionAmount = 0;
+  newTransactionCategory = '';
+  newTransactionDescription = '';
+  newTransactionDate = new Date().toISOString().split('T')[0];
+
+  // User info
+  userName = '';
+  userEmail = '';
 
   // Mock data - will be replaced with real API calls
   accounts: Account[] = [
@@ -90,37 +124,186 @@ export class DashboardComponent implements OnInit {
   totalBalance = 0;
   monthlyIncome = 0;
   monthlyExpenses = 0;
-  savingsRate = 0;
+
+  // Budget values
+  monthlyBudget = 2000; // Default budget
+  budgetUsedPercentage = 0;
+  budgetRemaining = 0;
 
   // Charts
   private categoryChart: Chart | null = null;
   private trendChart: Chart | null = null;
 
-  ngOnInit() {
-    this.calculateSummary();
+  // ...
+
+  calculateSummary() {
+    this.totalBalance = this.accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
+
+    const currentMonth = new Date().getMonth();
+    const currentMonthTransactions = this.transactions.filter(t => new Date(t.date).getMonth() === currentMonth);
+
+    this.monthlyIncome = currentMonthTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    this.monthlyExpenses = Math.abs(currentMonthTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + Number(t.amount), 0));
+
+    // Budget Calculations
+    this.budgetRemaining = this.monthlyBudget - this.monthlyExpenses;
+    this.budgetUsedPercentage = (this.monthlyExpenses / this.monthlyBudget) * 100;
+  }
+
+  isLoading = false;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private apiService: ApiService,
+    private cd: ChangeDetectorRef
+  ) { }
+
+  async ngOnInit() {
+    // Subscribe to auth state changes
+    this.authService.user$.subscribe(async (user) => {
+      if (user) {
+        this.userName = user.displayName || user.email?.split('@')[0] || 'User';
+        this.userEmail = user.email || '';
+        await this.loadData();
+      } else {
+        // Optional: Redirect if not logged in, though auth guard usually handles this
+        // this.router.navigate(['/login']);
+      }
+    });
+
     setTimeout(() => {
       this.initCharts();
     }, 100);
   }
 
-  calculateSummary() {
-    this.totalBalance = this.accounts.reduce((sum, acc) => sum + acc.balance, 0);
+  async loadData() {
+    this.isLoading = true;
+    try {
+      // Load accounts from API
+      this.accounts = await this.apiService.getAccounts();
 
-    const currentMonth = new Date().getMonth();
-    const currentMonthTransactions = this.transactions.filter(t => t.date.getMonth() === currentMonth);
+      // Load transactions from API
+      this.transactions = await this.apiService.getTransactions(50);
 
-    this.monthlyIncome = currentMonthTransactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
+      // Load AI insights from API
+      this.aiInsights = await this.apiService.getAIInsights();
 
-    this.monthlyExpenses = Math.abs(currentMonthTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0));
-
-    this.savingsRate = this.monthlyIncome > 0
-      ? ((this.monthlyIncome - this.monthlyExpenses) / this.monthlyIncome) * 100
-      : 0;
+      // Calculate summary from real data
+      this.calculateSummary();
+    } catch (error) {
+      console.error('Error loading data:', error);
+      // Keep mock data if API fails
+      this.calculateSummary();
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
   }
+
+  async logout() {
+    await this.authService.signOut();
+    this.router.navigate(['/login']);
+  }
+
+  async createAccount() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+    try {
+      await this.apiService.createAccount({
+        name: this.newAccountName,
+        type: this.newAccountType,
+        balance: this.newAccountBalance
+      } as any);
+
+      this.showAddAccountModal = false;
+      // Reset form
+      this.newAccountName = '';
+      this.newAccountType = 'checking';
+      this.newAccountBalance = 0;
+
+      await this.loadData();
+    } catch (error) {
+      console.error('Error creating account:', error);
+      alert('Failed to create account. Please try again.');
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
+  }
+
+  async createTransaction() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+    try {
+      await this.apiService.createTransaction({
+        accountId: this.newTransactionAccountId,
+        amount: this.newTransactionAmount,
+        category: this.newTransactionCategory,
+        description: this.newTransactionDescription,
+        date: new Date(this.newTransactionDate),
+        type: this.newTransactionType as 'income' | 'expense'
+      } as any);
+
+      this.showAddTransactionModal = false;
+      // Reset form
+      this.newTransactionAccountId = '';
+      this.newTransactionAmount = 0;
+      this.newTransactionCategory = '';
+      this.newTransactionDescription = '';
+      this.newTransactionDate = new Date().toISOString().split('T')[0];
+
+      await this.loadData();
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      alert('Failed to create transaction. Please try again.');
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
+  }
+
+  async deleteAccount(id: string) {
+    if (!confirm('Are you sure you want to delete this account?')) return;
+
+    if (this.isLoading) return;
+    this.isLoading = true;
+    try {
+      await this.apiService.deleteAccount(id);
+      await this.loadData();
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('Failed to delete account. Please try again.');
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
+  }
+
+  async deleteTransaction(id: string) {
+    if (!confirm('Are you sure you want to delete this transaction?')) return;
+
+    if (this.isLoading) return;
+    this.isLoading = true;
+    try {
+      await this.apiService.deleteTransaction(id);
+      await this.loadData();
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      alert('Failed to delete transaction. Please try again.');
+    } finally {
+      this.isLoading = false;
+      this.cd.detectChanges();
+    }
+  }
+
+
+
 
   initCharts() {
     this.initCategoryChart();
@@ -136,7 +319,8 @@ export class DashboardComponent implements OnInit {
     this.transactions
       .filter(t => t.type === 'expense')
       .forEach(t => {
-        categoryData[t.category] = (categoryData[t.category] || 0) + Math.abs(t.amount);
+        const category = t.category || 'Other';
+        categoryData[category] = (categoryData[category] || 0) + Math.abs(t.amount);
       });
 
     const labels = Object.keys(categoryData);
@@ -193,8 +377,9 @@ export class DashboardComponent implements OnInit {
 
     // Mock monthly data for the last 6 months
     const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
-    const incomeData = [4800, 5200, 5000, 5100, 5300, 5800];
-    const expenseData = [3200, 3400, 3100, 3300, 3500, 3200];
+    // const incomeData = [4800, 5200, 5000, 5100, 5300, 5800];
+    const expenseData = [1800, 2100, 1950, 2300, 1900, 2050];
+    const budgetData = months.map(() => this.monthlyBudget); // Constant budget line
 
     this.trendChart = new Chart(canvas, {
       type: 'line',
@@ -202,15 +387,17 @@ export class DashboardComponent implements OnInit {
         labels: months,
         datasets: [
           {
-            label: 'Income',
-            data: incomeData,
-            borderColor: '#10B981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4,
-            fill: true
+            label: 'Monthly Budget',
+            data: budgetData,
+            borderColor: '#0891B2', // Cyan for budget
+            borderDash: [5, 5], // Dashed line for goal
+            backgroundColor: 'transparent',
+            pointRadius: 0,
+            tension: 0,
+            fill: false
           },
           {
-            label: 'Expenses',
+            label: 'Actual Spending',
             data: expenseData,
             borderColor: '#F43F5E',
             backgroundColor: 'rgba(244, 63, 94, 0.1)',

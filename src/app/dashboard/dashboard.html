@@ -4,12 +4,25 @@
     <div class="header-content">
       <div>
         <h1 class="m-0">Financial Dashboard</h1>
-        <p class="text-secondary m-0">Welcome back! Here's your financial overview.</p>
+        <p class="text-secondary m-0">Welcome back, {{ userName }}!</p>
       </div>
-      <button class="btn-primary">
-        <lucide-icon [img]="Sparkles" [size]="18"></lucide-icon>
-        Generate AI Insights
-      </button>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="budget-control" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px;">
+            <span style="font-size: 14px; color: var(--text-secondary);">Budget: $</span>
+            <input type="number" [(ngModel)]="monthlyBudget" (change)="calculateSummary(); initTrendChart()" style="width: 70px; background: transparent; border: none; color: var(--text-primary); font-weight: bold; font-size: 16px;">
+        </div>
+        <button class="btn-primary" (click)="showAddAccountModal = true">
+          <lucide-icon [img]="Wallet" [size]="18"></lucide-icon>
+          Add Account
+        </button>
+        <button class="btn-primary" (click)="showAddTransactionModal = true">
+          <lucide-icon [img]="ArrowUpRight" [size]="18"></lucide-icon>
+          Add Transaction
+        </button>
+        <button class="btn-secondary" (click)="logout()">
+          Sign Out
+        </button>
+      </div>
     </div>
   </header>
 
@@ -58,16 +71,16 @@
         </div>
       </div>
 
-      <!-- Savings Rate Card -->
+      <!-- Remaining Budget Card -->
       <div class="summary-card glass-card">
         <div class="card-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
           <lucide-icon [img]="Target" [size]="28" [strokeWidth]="2"></lucide-icon>
         </div>
         <div class="card-content">
-          <p class="card-label">Savings Rate</p>
-          <h2 class="card-value">{{ savingsRate.toFixed(1) }}%</h2>
-          <p class="card-change text-success">
-            <span>↑</span> 5.3% from last month
+          <p class="card-label">Remaining Budget</p>
+          <h2 class="card-value" [ngClass]="budgetRemaining < 0 ? 'text-error' : ''">${{ budgetRemaining.toFixed(2) }}</h2>
+          <p class="card-change" [ngClass]="budgetUsedPercentage > 90 ? 'text-error' : 'text-success'">
+            <span>{{ budgetUsedPercentage.toFixed(1) }}%</span> used
           </p>
         </div>
       </div>
@@ -85,9 +98,9 @@
         </div>
       </div>
 
-      <!-- Income vs Expenses Trend -->
+      <!-- Budget vs Spending Trend -->
       <div class="chart-card glass-card animate-slide-up">
-        <h3>Income vs Expenses Trend</h3>
+        <h3>Budget vs Spending Trend</h3>
         <div class="chart-container">
           <canvas id="trendChart"></canvas>
         </div>
@@ -147,6 +160,9 @@
                  [ngClass]="transaction.type === 'income' ? 'text-success' : 'text-error'">
               {{ transaction.amount > 0 ? '+' : '' }}${{ transaction.amount.toFixed(2) }}
             </div>
+            <button class="btn-icon" (click)="deleteTransaction(transaction.id)" [disabled]="isLoading" style="margin-left: 10px; background: none; border: none; cursor: pointer;">
+              <lucide-icon [img]="Trash2" [size]="18" class="text-error"></lucide-icon>
+            </button>
           </div>
         </div>
       </div>
@@ -168,6 +184,9 @@
               [size]="24" 
               [strokeWidth]="2"
             ></lucide-icon>
+            <button class="btn-icon" (click)="deleteAccount(account.id)" [disabled]="isLoading" style="position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer;">
+                <lucide-icon [img]="Trash2" [size]="16" class="text-error" color="rgba(255, 99, 71, 0.6)"></lucide-icon>
+            </button>
           </div>
           <div class="account-info">
             <h4>{{ account.name }}</h4>
@@ -183,4 +202,86 @@
       </div>
     </div>
   </section>
+
+  <!-- Add Account Modal -->
+  <div *ngIf="showAddAccountModal" class="modal-overlay" (click)="showAddAccountModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add New Account</h2>
+        <button class="close-btn" (click)="showAddAccountModal = false">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Account Name</label>
+          <input type="text" [(ngModel)]="newAccountName" placeholder="e.g., Checking Account">
+        </div>
+        <div class="form-group">
+          <label>Account Type</label>
+          <select [(ngModel)]="newAccountType">
+            <option value="checking">Checking</option>
+            <option value="savings">Savings</option>
+            <option value="credit">Credit Card</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Initial Balance</label>
+          <input type="number" [(ngModel)]="newAccountBalance" placeholder="0.00" step="0.01">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="showAddAccountModal = false">Cancel</button>
+          <button class="btn-primary" (click)="createAccount()" [disabled]="isLoading">
+            {{ isLoading ? 'Creating...' : 'Create Account' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Transaction Modal -->
+  <div *ngIf="showAddTransactionModal" class="modal-overlay" (click)="showAddTransactionModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Transaction</h2>
+        <button class="close-btn" (click)="showAddTransactionModal = false">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Account</label>
+          <select [(ngModel)]="newTransactionAccountId">
+            <option value="">Select an account</option>
+            <option *ngFor="let account of accounts" [value]="account.id">{{ account.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newTransactionType">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount</label>
+          <input type="number" [(ngModel)]="newTransactionAmount" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" [(ngModel)]="newTransactionCategory" placeholder="e.g., Food, Salary">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" [(ngModel)]="newTransactionDescription" placeholder="Optional">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="newTransactionDate">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="showAddTransactionModal = false">Cancel</button>
+          <button class="btn-primary" (click)="createTransaction()" [disabled]="isLoading">
+            {{ isLoading ? 'Adding...' : 'Add Transaction' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

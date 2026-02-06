@@ -1,3 +1,5 @@
+@import './dashboard-modals.scss';
+
 .dashboard-container {
     min-height: 100vh;
     padding: var(--spacing-xl);
@@ -293,6 +295,15 @@
         font-weight: var(--font-weight-semibold);
         flex-shrink: 0;
     }
+
+    button {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .transaction-item:hover button {
+        opacity: 1;
+    }
 }
 
 /* Accounts Section */
@@ -331,6 +342,11 @@
             lucide-icon {
                 display: flex;
             }
+
+            button {
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+            }
         }
 
         .account-info {
@@ -346,6 +362,10 @@
                 margin: 0;
             }
         }
+    }
+
+    &:hover .account-header .account-icon button {
+        opacity: 1;
     }
 
     .account-balance {

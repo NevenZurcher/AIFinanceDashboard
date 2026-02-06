@@ -1,0 +1,11 @@
+{
+    "buildCommand": "npm run build:prod",
+    "outputDirectory": "dist/ai-finance-dashboard/browser",
+    "framework": "angular",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}

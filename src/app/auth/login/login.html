@@ -9,6 +9,10 @@
     </div>
 
     <form (ngSubmit)="onLogin()" class="login-form">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <div class="form-group">
         <label for="email">Email Address</label>
         <input
@@ -48,13 +52,13 @@
         <span>or</span>
       </div>
 
-      <button type="button" class="btn-demo" (click)="onLogin()">
+      <button type="button" class="btn-demo" (click)="onGoogleSignIn()" [disabled]="isLoading">
         <lucide-icon [img]="Zap" [size]="18" [strokeWidth]="2"></lucide-icon>
-        Try Demo
+        Sign in with Google
       </button>
 
       <p class="signup-link">
-        Don't have an account? <a href="#">Sign up</a>
+        Don't have an account? <a href="#" (click)="errorMessage = 'Sign up coming soon!'">Sign up</a>
       </p>
     </form>
   </div>
