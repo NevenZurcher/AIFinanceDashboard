@@ -1,10 +1,13 @@
-// Import all functions to register them with Azure Functions
-require('./src/functions/GetAccounts');
-require('./src/functions/CreateAccount');
-require('./src/functions/GetTransactions');
-require('./src/functions/CreateTransaction');
-require('./src/functions/GetAIInsights');
-require('./src/functions/GetIncomeStreams');
-require('./src/functions/CreateIncomeStream');
-require('./src/functions/UpdateIncomeStream');
-require('./src/functions/DeleteIncomeStream');
+// Import all functions to register them with Azure Functions v4
+require('./functions/GetAccounts');
+require('./functions/CreateAccount');
+require('./functions/DeleteAccount');
+require('./functions/UpdateAccount');
+require('./functions/GetTransactions');
+require('./functions/CreateTransaction');
+require('./functions/DeleteTransaction');
+require('./functions/GetAIInsights');
+require('./functions/GetIncomeStreams');
+require('./functions/CreateIncomeStream');
+require('./functions/UpdateIncomeStream');
+require('./functions/DeleteIncomeStream');
