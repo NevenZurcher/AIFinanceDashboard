@@ -6,11 +6,11 @@ DROP TABLE IF EXISTS income_streams CASCADE;
 
 CREATE TABLE income_streams (
     income_stream_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    account_id INTEGER,
-    name VARCHAR(255) NOT NULL,
-    amount DECIMAL(12, 2) NOT NULL CHECK (amount >= 0),
-    frequency VARCHAR(50) NOT NULL DEFAULT 'monthly',
+    user_id VARCHAR(255) NOT NULL,
+    account_id UUID NOT NULL REFERENCES accounts(account_id),
+    name VARCHAR(100) NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL DEFAULT 0,
+    frequency VARCHAR(20) NOT NULL, -- 'weekly', 'bi-weekly', 'monthly',
     is_active BOOLEAN NOT NULL DEFAULT true,
     last_deposit_date TIMESTAMP,
     next_deposit_date TIMESTAMP,

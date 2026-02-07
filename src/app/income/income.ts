@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService, IncomeStream } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 import { LucideAngularModule, DollarSign, Calendar, Wallet, Plus, Trash2, Edit } from 'lucide-angular';
 
 interface Account {
@@ -46,7 +47,12 @@ export class IncomeComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    await this.loadData();
+    // Wait for auth to be ready
+    this.apiService['authService'].user$.subscribe((user: any) => {
+      if (user) {
+        this.loadData();
+      }
+    });
   }
 
   async loadData() {
@@ -74,8 +80,9 @@ export class IncomeComponent implements OnInit {
         const account = this.accounts.find(a => a.id === stream.accountId);
         stream.accountName = account?.name || 'Unknown';
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading data:', error);
+      alert('Failed to load income data: ' + (error.message || error));
       // Fallback to localStorage for income streams
       this.useLocalStorage = true;
       const stored = localStorage.getItem('incomeStreams');
@@ -130,11 +137,11 @@ export class IncomeComponent implements OnInit {
       this.newStreamName = '';
       this.newStreamAmount = 0;
       this.newStreamFrequency = 'monthly';
-      this.newStreamAccountId = '';
-      this.showAddModal = false;
-    } catch (error) {
+      // this.calculateMonthlyTotal(); // Method missing, removed
+      this.isLoading = false;
+    } catch (error: any) {
       console.error('Error adding income stream:', error);
-      alert('Failed to add income stream. Please try again.');
+      alert('Failed to add income stream: ' + (error.message || error));
     } finally {
       this.isLoading = false;
     }
