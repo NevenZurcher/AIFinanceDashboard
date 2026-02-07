@@ -6,10 +6,20 @@ let firebaseApp;
 function initializeFirebase() {
     if (!firebaseApp) {
         try {
-            // In production, use environment variable for service account
-            // For now, we'll use the project ID from environment
+            // Check for service account JSON in environment variable
+            const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+
+            let credential;
+            if (serviceAccountJson) {
+                const serviceAccount = JSON.parse(serviceAccountJson);
+                credential = admin.credential.cert(serviceAccount);
+            } else {
+                // Fallback to application default (works locally if GOOGLE_APPLICATION_CREDENTIALS is set)
+                credential = admin.credential.applicationDefault();
+            }
+
             firebaseApp = admin.initializeApp({
-                credential: admin.credential.applicationDefault(),
+                credential: credential,
                 projectId: process.env.FIREBASE_PROJECT_ID || 'wisewallet-6e673'
             });
             console.log('Firebase Admin initialized successfully');
