@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "dev": "concurrently \"npm start\" \"npm run start:api\"",
     "start:api": "cd azure-functions && func start",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
@@ -47,6 +48,7 @@
     "@angular/build": "21.1.1",
     "@angular/cli": "21.1.1",
     "@angular/compiler-cli": "21.1.1",
+    "concurrently": "^9.2.1",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

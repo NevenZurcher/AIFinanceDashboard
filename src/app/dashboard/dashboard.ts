@@ -1,11 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2, Edit } from 'lucide-angular';
+import { LucideAngularModule, TrendingUp, ArrowUpRight, ArrowDownRight, Target, Sparkles, ArrowUp, ArrowDown, Building2, Wallet, CreditCard, BarChart3, CheckCircle, AlertTriangle, Info, Trash2, Edit, Search, Bell, Globe, MoreHorizontal, LayoutDashboard, LineChart, Receipt, FileText, Settings, User, Send, ArrowRight, SlidersHorizontal, RefreshCw, Plus } from 'lucide-angular';
 
 
 
@@ -25,6 +25,12 @@ interface Transaction {
   type: 'income' | 'expense';
 }
 
+interface BudgetCategory {
+  name: string;
+  budget: number;
+  actual: number;
+}
+
 interface AIInsight {
   title: string;
   description: string;
@@ -36,7 +42,8 @@ interface AIInsight {
   imports: [
     CommonModule,
     FormsModule,
-    LucideAngularModule
+    LucideAngularModule,
+    RouterModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
@@ -59,6 +66,21 @@ export class DashboardComponent implements OnInit {
   readonly Info = Info;
   readonly Trash2 = Trash2;
   readonly Edit = Edit;
+  readonly Search = Search;
+  readonly Bell = Bell;
+  readonly Globe = Globe;
+  readonly MoreHorizontal = MoreHorizontal;
+  readonly LayoutDashboard = LayoutDashboard;
+  readonly LineChart = LineChart;
+  readonly Receipt = Receipt;
+  readonly FileText = FileText;
+  readonly Settings = Settings;
+  readonly User = User;
+  readonly Send = Send;
+  readonly ArrowRight = ArrowRight;
+  readonly SlidersHorizontal = SlidersHorizontal;
+  readonly RefreshCw = RefreshCw;
+  readonly Plus = Plus;
 
   // Modal states
   showAddAccountModal = false;
@@ -84,41 +106,10 @@ export class DashboardComponent implements OnInit {
   userName = '';
   userEmail = '';
 
-  // Mock data - will be replaced with real API calls
-  accounts: Account[] = [
-    { id: '1', name: 'Checking Account', type: 'checking', balance: 5420.50 },
-    { id: '2', name: 'Savings Account', type: 'savings', balance: 12350.00 },
-    { id: '3', name: 'Credit Card', type: 'credit', balance: -1250.75 }
-  ];
-
-  transactions: Transaction[] = [
-    { id: '1', description: 'Salary Deposit', amount: 5000, category: 'Income', date: new Date('2026-01-15'), type: 'income' },
-    { id: '2', description: 'Rent Payment', amount: -1500, category: 'Housing', date: new Date('2026-01-14'), type: 'expense' },
-    { id: '3', description: 'Grocery Shopping', amount: -250.50, category: 'Food', date: new Date('2026-01-13'), type: 'expense' },
-    { id: '4', description: 'Gas Station', amount: -45.20, category: 'Transportation', date: new Date('2026-01-12'), type: 'expense' },
-    { id: '5', description: 'Restaurant', amount: -85.00, category: 'Food', date: new Date('2026-01-11'), type: 'expense' },
-    { id: '6', description: 'Online Shopping', amount: -120.30, category: 'Shopping', date: new Date('2026-01-10'), type: 'expense' },
-    { id: '7', description: 'Freelance Work', amount: 800, category: 'Income', date: new Date('2026-01-09'), type: 'income' },
-    { id: '8', description: 'Electricity Bill', amount: -95.00, category: 'Utilities', date: new Date('2026-01-08'), type: 'expense' }
-  ];
-
-  aiInsights: AIInsight[] = [
-    {
-      title: 'Great Savings Rate!',
-      description: 'You\'re saving 35% of your income this month. Keep up the excellent work!',
-      type: 'success'
-    },
-    {
-      title: 'Food Spending Alert',
-      description: 'Your food expenses are 20% higher than last month. Consider meal planning to reduce costs.',
-      type: 'warning'
-    },
-    {
-      title: 'Investment Opportunity',
-      description: 'Based on your savings pattern, you could invest $500/month in a low-risk index fund.',
-      type: 'info'
-    }
-  ];
+  // Data will be loaded from API
+  accounts: Account[] = [];
+  transactions: Transaction[] = [];
+  aiInsights: AIInsight[] = [];
 
   // Computed values
   totalBalance = 0;
@@ -126,9 +117,30 @@ export class DashboardComponent implements OnInit {
   monthlyExpenses = 0;
 
   // Budget values
-  monthlyBudget = 2000; // Default budget
+  monthlyBudget = 2000;
   budgetUsedPercentage = 0;
   budgetRemaining = 0;
+
+  // Budget categories
+  showBudgetPanel = false;
+  budgetCategories: BudgetCategory[] = [
+    { name: 'Housing', budget: 1200, actual: 1150 },
+    { name: 'Food', budget: 400, actual: 520 },
+    { name: 'Transport', budget: 200, actual: 180 },
+    { name: 'Entertainment', budget: 150, actual: 90 },
+    { name: 'Savings', budget: 500, actual: 500 },
+  ];
+
+  // Placeholder AI insights
+  placeholderInsights = [
+    { title: 'Food budget alert', description: 'You\'re on track to exceed your Food budget by $120 this month.', type: 'warning' as const },
+    { title: 'Savings on track', description: 'Your savings rate increased 4% vs last month. Keep it up!', type: 'success' as const },
+    { title: 'Housing cost stable', description: 'Housing expenses have stayed within budget for 3 consecutive months.', type: 'success' as const },
+    { title: 'Unusual activity', description: 'A $340 charge was detected in Entertainment — higher than your monthly average.', type: 'info' as const },
+  ];
+
+  // Chart range
+  chartRange: '1D' | '1W' | '1M' = '1M';
 
   // ...
 
@@ -192,7 +204,10 @@ export class DashboardComponent implements OnInit {
       this.calculateSummary();
     } catch (error) {
       console.error('Error loading data:', error);
-      // Keep mock data if API fails
+      // Ensure empty state on error
+      this.accounts = [];
+      this.transactions = [];
+      this.aiInsights = [];
       this.calculateSummary();
     } finally {
       this.isLoading = false;
@@ -404,4 +419,246 @@ export class DashboardComponent implements OnInit {
   navigateToIncome() {
     this.router.navigate(['/income']);
   }
+
+  addBudgetCategory() {
+    this.budgetCategories.push({ name: 'New Category', budget: 0, actual: 0 });
+  }
+
+  removeBudgetCategory(index: number) {
+    this.budgetCategories.splice(index, 1);
+  }
+
+  getMaxBudget(): number {
+    return Math.max(...this.budgetCategories.map(c => Math.max(c.budget, c.actual)), 1);
+  }
+
+  // ─── Chart Data Methods ───
+
+  getChartLabels(): string[] {
+    const now = new Date();
+    if (this.chartRange === '1D') {
+      return ['12am', '4am', '8am', '12pm', '4pm', '8pm', 'Now'];
+    } else if (this.chartRange === '1W') {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const labels: string[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        labels.push(days[d.getDay()]);
+      }
+      return labels;
+    } else {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const labels: string[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        labels.push(months[d.getMonth()]);
+      }
+      return labels;
+    }
+  }
+
+  private getBuckets(): { start: Date; end: Date; count: number } {
+    const now = new Date();
+    if (this.chartRange === '1D') {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return { start, end: now, count: 7 };
+    } else if (this.chartRange === '1W') {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      return { start, end: now, count: 7 };
+    } else {
+      const start = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+      return { start, end: now, count: 6 };
+    }
+  }
+
+  private bucketIndex(date: Date, start: Date, count: number): number {
+    const totalMs = Date.now() - start.getTime();
+    const elapsed = date.getTime() - start.getTime();
+    const idx = Math.floor((elapsed / totalMs) * count);
+    return Math.max(0, Math.min(count - 1, idx));
+  }
+
+  getSpendingPoints(): string {
+    const { start, count } = this.getBuckets();
+    const buckets = new Array(count).fill(0);
+    const filtered = this.transactions.filter(t => t.type === 'expense' && new Date(t.date) >= start);
+    filtered.forEach(t => {
+      const idx = this.bucketIndex(new Date(t.date), start, count);
+      buckets[idx] += Math.abs(Number(t.amount));
+    });
+    const max = Math.max(...buckets, 1);
+    const svgW = 300;
+    const svgH = 70;
+    const margin = 5;
+    return buckets.map((v, i) => {
+      const x = (i / (count - 1)) * svgW;
+      const y = margin + (1 - v / max) * (svgH - margin * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  getSpendingFill(): string {
+    return this.getSpendingPoints() + ' 300,75 0,75';
+  }
+
+  getBudgetLinePoints(): string {
+    const { count } = this.getBuckets();
+    let budgetPerBucket = this.monthlyBudget;
+    if (this.chartRange === '1D') budgetPerBucket = this.monthlyBudget / 30;
+    else if (this.chartRange === '1W') budgetPerBucket = this.monthlyBudget / 4;
+
+    const buckets = new Array(count).fill(0);
+    const { start } = this.getBuckets();
+    const filtered = this.transactions.filter(t => t.type === 'expense' && new Date(t.date) >= start);
+    filtered.forEach(t => {
+      const idx = this.bucketIndex(new Date(t.date), start, count);
+      buckets[idx] += Math.abs(Number(t.amount));
+    });
+    const max = Math.max(...buckets, budgetPerBucket, 1);
+
+    const svgW = 300;
+    const svgH = 70;
+    const margin = 5;
+    const y = margin + (1 - budgetPerBucket / max) * (svgH - margin * 2);
+    return `0,${y.toFixed(1)} 300,${y.toFixed(1)}`;
+  }
+
+  getBalancePoints(): string {
+    const { start, count } = this.getBuckets();
+    const buckets = new Array(count).fill(0);
+    // Compute running balance per bucket
+    const sorted = [...this.transactions]
+      .filter(t => new Date(t.date) >= start)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    let running = this.totalBalance;
+    // Walk backwards to find starting balance
+    sorted.slice().reverse().forEach(t => {
+      if (t.type === 'income') running -= Math.abs(Number(t.amount));
+      else running += Math.abs(Number(t.amount));
+    });
+
+    // Now walk forward filling buckets
+    const balances = new Array(count).fill(running);
+    sorted.forEach(t => {
+      const idx = this.bucketIndex(new Date(t.date), start, count);
+      if (t.type === 'income') running += Math.abs(Number(t.amount));
+      else running -= Math.abs(Number(t.amount));
+      for (let i = idx; i < count; i++) balances[i] = running;
+    });
+
+    const max = Math.max(...balances, 1);
+    const min = Math.min(...balances, 0);
+    const range = max - min || 1;
+    const svgW = 300;
+    const svgH = 70;
+    const margin = 5;
+    return balances.map((v, i) => {
+      const x = (i / (count - 1)) * svgW;
+      const y = margin + (1 - (v - min) / range) * (svgH - margin * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  getBalanceFill(): string {
+    return this.getBalancePoints() + ' 300,75 0,75';
+  }
+
+  // ─── Interactive Chart Data ───
+
+  getSpendingDataPoints(): { xPct: number; yPct: number; label: string }[] {
+    const { start, count } = this.getBuckets();
+    const buckets = new Array(count).fill(0);
+    this.transactions.filter(t => t.type === 'expense' && new Date(t.date) >= start)
+      .forEach(t => {
+        const idx = this.bucketIndex(new Date(t.date), start, count);
+        buckets[idx] += Math.abs(Number(t.amount));
+      });
+    const max = Math.max(...buckets, 1);
+    const margin = 5;
+    const chartH = 70 - margin * 2;
+    return buckets.map((v, i) => ({
+      xPct: (i / Math.max(count - 1, 1)) * 100,
+      yPct: ((margin + (1 - v / max) * chartH) / 80) * 100,
+      label: '$' + Math.round(v).toLocaleString()
+    }));
+  }
+
+  getSpendingYTicks(): { pct: number; label: string }[] {
+    const { start, count } = this.getBuckets();
+    const buckets = new Array(count).fill(0);
+    this.transactions.filter(t => t.type === 'expense' && new Date(t.date) >= start)
+      .forEach(t => {
+        const idx = this.bucketIndex(new Date(t.date), start, count);
+        buckets[idx] += Math.abs(Number(t.amount));
+      });
+    const max = Math.max(...buckets, 1);
+    const margin = 5;
+    const chartH = 70 - margin * 2;
+    return [max, max * 0.66, max * 0.33, 0].map(v => ({
+      pct: ((margin + (1 - v / max) * chartH) / 80) * 100,
+      label: '$' + Math.round(v).toLocaleString()
+    }));
+  }
+
+  getBalanceDataPoints(): { xPct: number; yPct: number; label: string }[] {
+    const { start, count } = this.getBuckets();
+    const sorted = [...this.transactions]
+      .filter(t => new Date(t.date) >= start)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let running = this.totalBalance;
+    sorted.slice().reverse().forEach(t => {
+      if (t.type === 'income') running -= Math.abs(Number(t.amount));
+      else running += Math.abs(Number(t.amount));
+    });
+    const balances = new Array(count).fill(running);
+    sorted.forEach(t => {
+      const idx = this.bucketIndex(new Date(t.date), start, count);
+      if (t.type === 'income') running += Math.abs(Number(t.amount));
+      else running -= Math.abs(Number(t.amount));
+      for (let i = idx; i < count; i++) balances[i] = running;
+    });
+    const max = Math.max(...balances, 1);
+    const min = Math.min(...balances, 0);
+    const range = max - min || 1;
+    const margin = 5;
+    const chartH = 70 - margin * 2;
+    return balances.map((v, i) => ({
+      xPct: (i / Math.max(count - 1, 1)) * 100,
+      yPct: ((margin + (1 - (v - min) / range) * chartH) / 80) * 100,
+      label: '$' + Math.round(v).toLocaleString()
+    }));
+  }
+
+  getBalanceYTicks(): { pct: number; label: string }[] {
+    const { start, count } = this.getBuckets();
+    const sorted = [...this.transactions]
+      .filter(t => new Date(t.date) >= start)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let running = this.totalBalance;
+    sorted.slice().reverse().forEach(t => {
+      if (t.type === 'income') running -= Math.abs(Number(t.amount));
+      else running += Math.abs(Number(t.amount));
+    });
+    const balances = new Array(count).fill(running);
+    sorted.forEach(t => {
+      const idx = this.bucketIndex(new Date(t.date), start, count);
+      if (t.type === 'income') running += Math.abs(Number(t.amount));
+      else running -= Math.abs(Number(t.amount));
+      for (let i = idx; i < count; i++) balances[i] = running;
+    });
+    const max = Math.max(...balances, 1);
+    const min = Math.min(...balances, 0);
+    const range = max - min || 1;
+    const margin = 5;
+    const chartH = 70 - margin * 2;
+    return [max, min + range * 0.66, min + range * 0.33, min].map(v => ({
+      pct: ((margin + (1 - (v - min) / range) * chartH) / 80) * 100,
+      label: '$' + Math.round(v).toLocaleString()
+    }));
+  }
 }
+

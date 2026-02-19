@@ -1,190 +1,311 @@
-<div class="dashboard-container">
-  <!-- Header -->
-  <header class="dashboard-header glass-card animate-fade-in">
-    <div class="header-content">
-      <div>
-        <h1 class="m-0">Financial Dashboard</h1>
-        <p class="text-secondary m-0">Welcome back, {{ userName }}!</p>
+<div class="dashboard-page">
+  <!-- Background Orbs -->
+  <div class="bg-orb bg-orb--violet"></div>
+  <div class="bg-orb bg-orb--emerald"></div>
+
+  <!-- ═══════════ NAVBAR ═══════════ -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <lucide-icon [img]="Wallet" [size]="22" [strokeWidth]="2"></lucide-icon>
       </div>
-      <div style="display: flex; gap: 1rem; align-items: center;">
-        <div class="budget-control" style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px;">
-            <span style="font-size: 14px; color: var(--text-secondary);">Budget: $</span>
-            <input type="number" [(ngModel)]="monthlyBudget" (change)="calculateSummary()" style="width: 70px; background: transparent; border: none; color: var(--text-primary); font-weight: bold; font-size: 16px;">
+      <span class="nav-brand">WiseWallet</span>
+    </div>
+
+    <div class="nav-center">
+      <a routerLink="/dashboard" class="nav-pill active">
+        <lucide-icon [img]="LayoutDashboard" [size]="15"></lucide-icon>
+        Dashboard
+      </a>
+      <a routerLink="/analytics" class="nav-pill">
+        <lucide-icon [img]="LineChart" [size]="15"></lucide-icon>
+        Analytics
+      </a>
+      <a routerLink="/expenses" class="nav-pill">
+        <lucide-icon [img]="Receipt" [size]="15"></lucide-icon>
+        Transactions
+      </a>
+      <a class="nav-pill">
+        <lucide-icon [img]="FileText" [size]="15"></lucide-icon>
+        Reports
+      </a>
+      <a class="nav-pill">
+        <lucide-icon [img]="Settings" [size]="15"></lucide-icon>
+        Settings
+      </a>
+    </div>
+
+    <div class="nav-right">
+      <button class="nav-icon-btn">
+        <lucide-icon [img]="Search" [size]="18"></lucide-icon>
+      </button>
+      <button class="nav-icon-btn">
+        <lucide-icon [img]="Bell" [size]="18"></lucide-icon>
+      </button>
+      <div class="nav-avatar">
+        <lucide-icon [img]="User" [size]="18"></lucide-icon>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════ HERO SECTION (50% of page) ═══════════ -->
+  <section class="hero">
+    <div class="hero-top-row">
+      <h1 class="hero-welcome">Welcome back,<br><span class="hero-name">{{ userName || 'User' }}</span></h1>
+      <div class="hero-top-right">
+        <div class="range-toggle">
+          <button class="range-btn" [class.active]="chartRange === '1D'" (click)="chartRange = '1D'">1D</button>
+          <button class="range-btn" [class.active]="chartRange === '1W'" (click)="chartRange = '1W'">1W</button>
+          <button class="range-btn" [class.active]="chartRange === '1M'" (click)="chartRange = '1M'">1M</button>
         </div>
-        <button class="btn-primary" (click)="showAddTransactionModal = true">
-          <lucide-icon [img]="ArrowUpRight" [size]="18"></lucide-icon>
-          Add Transaction
+        <button class="btn-outline btn-outline--sm" (click)="showBudgetPanel = !showBudgetPanel">
+          <lucide-icon [img]="SlidersHorizontal" [size]="14"></lucide-icon>
+          Set Budget
         </button>
       </div>
     </div>
-  </header>
 
-  <!-- Summary Cards -->
-  <section class="summary-section animate-slide-up">
-    <div class="summary-grid">
-      <!-- Total Balance Card -->
-      <div class="summary-card glass-card">
-        <div class="card-icon" style="background: linear-gradient(135deg, #0891B2, #06B6D4);">
-          <lucide-icon [img]="TrendingUp" [size]="28" [strokeWidth]="2"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <p class="card-label">Total Balance</p>
-          <h2 class="card-value">${{ totalBalance.toFixed(2) }}</h2>
-          <p class="card-change text-success">
-            <span>↑</span> 12.5% from last month
-          </p>
+    <div class="hero-grid">
+      <!-- LEFT: Balance + Actions -->
+      <div class="hero-left glass-panel">
+        <p class="hero-label">Total Balance</p>
+        <h2 class="hero-amount">
+          <span class="dollar-int">${{ totalBalance.toFixed(2).split('.')[0] }}</span><span class="dollar-dec">.{{ totalBalance.toFixed(2).split('.')[1] }}</span>
+        </h2>
+
+        <p class="hero-sub mono-value">
+          <span class="dollar-int">${{ budgetRemaining.toFixed(2).split('.')[0] }}</span><span class="dollar-dec">.{{ budgetRemaining.toFixed(2).split('.')[1] }}</span>
+          <span class="hero-sub-label">available to spend</span>
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn-outline" (click)="showAddAccountModal = true">
+            <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+            Add Account
+          </button>
+          <button class="btn-outline" (click)="showAddTransactionModal = true">
+            <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+            Add Transaction
+          </button>
+          <button class="btn-dot">
+            <lucide-icon [img]="MoreHorizontal" [size]="16"></lucide-icon>
+          </button>
         </div>
       </div>
 
-      <!-- Monthly Income Card -->
-      <div class="summary-card glass-card">
-        <div class="card-icon" style="background: linear-gradient(135deg, #10B981, #34D399);">
-          <lucide-icon [img]="ArrowUpRight" [size]="28" [strokeWidth]="2"></lucide-icon>
+      <!-- Chart 1: Spending vs Budget -->
+      <div class="chart-card glass-panel">
+        <div class="chart-top-bar">
+          <h3>Spending vs Budget</h3>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot dot-actual"></span> Spending</span>
+            <span class="legend-item"><span class="legend-dot dot-budget"></span> Budget</span>
+          </div>
         </div>
-        <div class="card-content">
-          <p class="card-label">Monthly Income</p>
-          <h2 class="card-value">${{ monthlyIncome.toFixed(2) }}</h2>
-          <p class="card-change text-success">
-            <span>↑</span> 8.2% from last month
-          </p>
+        <div class="line-chart-wrap">
+          <div class="chart-with-axis">
+            <div class="y-axis-labels">
+              <span *ngFor="let tick of getSpendingYTicks()" class="y-tick mono-value" [style.top.%]="tick.pct">{{ tick.label }}</span>
+            </div>
+            <div class="chart-svg-area">
+              <svg class="line-chart-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
+                <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="0" y1="40" x2="300" y2="40" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <polyline [attr.points]="getBudgetLinePoints()"
+                          fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"
+                          stroke-dasharray="6,4" />
+                <polygon [attr.points]="getSpendingFill()" fill="rgba(37,99,235,0.12)" />
+                <polyline [attr.points]="getSpendingPoints()"
+                          fill="none" stroke="rgba(37,99,235,0.8)" stroke-width="2" />
+              </svg>
+              <div class="dots-overlay spending-dots">
+                <div *ngFor="let pt of getSpendingDataPoints()" class="hover-dot"
+                     [style.left.%]="pt.xPct" [style.top.%]="pt.yPct">
+                  <span class="dot-tooltip mono-value">{{ pt.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-x-labels">
+            <span class="mono-value" *ngFor="let label of getChartLabels()">{{ label }}</span>
+          </div>
         </div>
       </div>
 
-      <!-- Monthly Expenses Card -->
-      <div class="summary-card glass-card">
-        <div class="card-icon" style="background: linear-gradient(135deg, #F43F5E, #FB7185);">
-          <lucide-icon [img]="ArrowDownRight" [size]="28" [strokeWidth]="2"></lucide-icon>
+      <!-- Chart 2: Balance Over Time -->
+      <div class="chart-card glass-panel">
+        <div class="chart-top-bar">
+          <h3>Balance</h3>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot dot-balance"></span> Balance</span>
+          </div>
         </div>
-        <div class="card-content">
-          <p class="card-label">Monthly Expenses</p>
-          <h2 class="card-value">${{ monthlyExpenses.toFixed(2) }}</h2>
-          <p class="card-change text-error">
-            <span>↓</span> 3.1% from last month
-          </p>
+        <div class="line-chart-wrap">
+          <div class="chart-with-axis">
+            <div class="y-axis-labels">
+              <span *ngFor="let tick of getBalanceYTicks()" class="y-tick mono-value" [style.top.%]="tick.pct">{{ tick.label }}</span>
+            </div>
+            <div class="chart-svg-area">
+              <svg class="line-chart-svg" viewBox="0 0 300 80" preserveAspectRatio="none">
+                <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="0" y1="40" x2="300" y2="40" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <line x1="0" y1="60" x2="300" y2="60" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+                <polygon [attr.points]="getBalanceFill()" fill="rgba(14,165,233,0.10)" />
+                <polyline [attr.points]="getBalancePoints()"
+                          fill="none" stroke="rgba(14,165,233,0.8)" stroke-width="2" />
+              </svg>
+              <div class="dots-overlay balance-dots">
+                <div *ngFor="let pt of getBalanceDataPoints()" class="hover-dot"
+                     [style.left.%]="pt.xPct" [style.top.%]="pt.yPct">
+                  <span class="dot-tooltip mono-value">{{ pt.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-x-labels">
+            <span class="mono-value" *ngFor="let label of getChartLabels()">{{ label }}</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Remaining Budget Card -->
-      <div class="summary-card glass-card">
-        <div class="card-icon" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">
-          <lucide-icon [img]="Target" [size]="28" [strokeWidth]="2"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <p class="card-label">Remaining Budget</p>
-          <h2 class="card-value" [ngClass]="budgetRemaining < 0 ? 'text-error' : ''">${{ budgetRemaining.toFixed(2) }}</h2>
-          <p class="card-change" [ngClass]="budgetUsedPercentage > 90 ? 'text-error' : 'text-success'">
-            <span>{{ budgetUsedPercentage.toFixed(1) }}%</span> used
-          </p>
+    <!-- Budget Settings Panel (collapsible) -->
+    <div *ngIf="showBudgetPanel" class="budget-panel glass-panel">
+      <div class="budget-panel-head">
+        <h3>Budget Settings</h3>
+        <button class="btn-dot" (click)="showBudgetPanel = false">×</button>
+      </div>
+      <div class="budget-rows">
+        <div class="budget-row" *ngFor="let cat of budgetCategories; let i = index">
+          <input type="text" [(ngModel)]="cat.name" class="budget-cat-name">
+          <div class="budget-input-wrap">
+            <span class="budget-dollar">$</span>
+            <input type="number" [(ngModel)]="cat.budget" class="budget-cat-input" step="50">
+          </div>
+          <button class="btn-dot btn-dot--sm" (click)="removeBudgetCategory(i)">
+            <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+          </button>
         </div>
       </div>
+      <button class="btn-outline btn-add-cat" (click)="addBudgetCategory()">
+        <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+        Add category
+      </button>
     </div>
   </section>
 
-  <!-- Accounts Overview -->
-  <section class="accounts-section animate-slide-up">
-    <div class="section-header">
-      <h3>Your Accounts</h3>
-      <button class="btn-secondary" (click)="showAddAccountModal = true">+ Add Account</button>
-    </div>
-    <div class="accounts-grid">
-      <div *ngFor="let account of accounts" class="account-card glass-card">
-        <div class="account-header">
-          <div class="account-icon">
-            <lucide-icon 
-              [img]="account.type === 'checking' ? Building2 : account.type === 'savings' ? Wallet : account.type === 'roth' ? Target : CreditCard" 
-              [size]="24" 
-              [strokeWidth]="2"
-            ></lucide-icon>
-          </div>
-          <div class="account-info">
-            <h4>{{ account.name }}</h4>
-            <p class="text-secondary">{{ account.type | titlecase }}</p>
-          </div>
-          <div class="account-actions">
-            <button class="btn-icon" (click)="editAccount(account)" [disabled]="isLoading">
-              <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
+  <!-- ═══════════ BOTTOM THREE-COLUMN ROW ═══════════ -->
+  <section class="bottom-cards">
+
+    <!-- Card 1 — Accounts (as cards) -->
+    <div class="card-panel card-accounts">
+      <div class="card-head">
+        <h3>Accounts</h3>
+        <button class="btn-outline btn-outline--sm" (click)="showAddAccountModal = true">
+          <lucide-icon [img]="Plus" [size]="14"></lucide-icon>
+          Add
+        </button>
+      </div>
+      <div class="accounts-grid">
+        <div *ngFor="let account of accounts" class="account-card">
+          <div class="account-card-top">
+            <span class="account-type-pill"
+                  [ngClass]="{
+                    'pill-blue': account.type === 'checking',
+                    'pill-green': account.type === 'savings',
+                    'pill-rose': account.type === 'credit',
+                    'pill-purple': account.type === 'roth'
+                  }">
+              {{ account.type | titlecase }}
+            </span>
+            <button class="btn-dot btn-dot--sm" (click)="editAccount(account)">
+              <lucide-icon [img]="Edit" [size]="13"></lucide-icon>
             </button>
-            <button class="btn-icon" (click)="deleteAccount(account.id)" [disabled]="isLoading">
-              <lucide-icon [img]="Trash2" [size]="16" class="text-error"></lucide-icon>
-            </button>
           </div>
-        </div>
-        <div class="account-balance">
-          <p class="balance-label">Current Balance</p>
-          <h3 [ngClass]="account.balance < 0 ? 'text-error' : 'text-primary'">
+          <p class="account-card-name">{{ account.name }}</p>
+          <p class="account-card-bal mono-value" [ngClass]="account.balance < 0 ? 'text-error' : ''">
             ${{ account.balance.toFixed(2) }}
-          </h3>
+          </p>
         </div>
+        <div *ngIf="accounts.length === 0" class="empty-msg mono-value">No accounts yet</div>
+      </div>
+      <div class="account-total" *ngIf="accounts.length > 0">
+        <span>Total</span>
+        <span class="mono-value">${{ totalBalance.toFixed(2) }}</span>
       </div>
     </div>
-  </section>
 
-
-  <section class="bottom-section">
-    <div class="bottom-grid">
-      <!-- AI Insights -->
-      <div class="insights-card glass-card animate-slide-up">
-        <div class="section-header">
-          <h3><lucide-icon [img]="Sparkles" [size]="20" [strokeWidth]="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;"></lucide-icon>AI Insights</h3>
-          <button class="btn-text">View All</button>
+    <!-- Card 2 — AI Insights -->
+    <div class="card-panel card-insights">
+      <div class="card-head">
+        <div class="card-head-left">
+          <lucide-icon [img]="Sparkles" [size]="16" [strokeWidth]="2"></lucide-icon>
+          <h3>AI Insights</h3>
         </div>
-        <div class="insights-list">
-          <div *ngFor="let insight of aiInsights" 
-               class="insight-item"
-               [ngClass]="'insight-' + insight.type">
-            <div class="insight-icon">
-              <lucide-icon 
-                [img]="insight.type === 'success' ? CheckCircle : insight.type === 'warning' ? AlertTriangle : Info" 
-                [size]="20" 
-                [strokeWidth]="2"
-              ></lucide-icon>
-            </div>
-            <div class="insight-content">
-              <h4>{{ insight.title }}</h4>
-              <p>{{ insight.description }}</p>
-            </div>
+        <button class="btn-dot">
+          <lucide-icon [img]="RefreshCw" [size]="15"></lucide-icon>
+        </button>
+      </div>
+      <div class="insights-list">
+        <div *ngFor="let insight of (aiInsights.length > 0 ? aiInsights : placeholderInsights)"
+             class="insight-row">
+          <div class="insight-dot-wrap">
+            <span class="insight-dot"
+                  [ngClass]="{
+                    'dot-success': insight.type === 'success',
+                    'dot-warning': insight.type === 'warning',
+                    'dot-info': insight.type === 'info'
+                  }"></span>
+          </div>
+          <div class="insight-text">
+            <p class="insight-title">{{ insight.title }}</p>
+            <p class="insight-desc">{{ insight.description }}</p>
           </div>
         </div>
       </div>
-
-      <!-- Recent Transactions -->
-      <div class="transactions-card glass-card animate-slide-up">
-        <div class="section-header">
-          <h3>Recent Transactions</h3>
-          <button class="btn-text">View All</button>
-        </div>
-        <div class="transactions-list">
-          <div *ngFor="let transaction of transactions.slice(0, 6)" class="transaction-item">
-            <div class="transaction-icon" 
-                 [ngClass]="transaction.type === 'income' ? 'icon-income' : 'icon-expense'">
-              <lucide-icon 
-                [img]="transaction.type === 'income' ? ArrowDown : ArrowUp" 
-                [size]="18" 
-                [strokeWidth]="2.5"
-              ></lucide-icon>
-            </div>
-            <div class="transaction-details">
-              <p class="transaction-description">{{ transaction.description }}</p>
-              <p class="transaction-category">{{ transaction.category }} • {{ transaction.date | date: 'MMM d' }}</p>
-            </div>
-            <div class="transaction-amount" 
-                 [ngClass]="transaction.type === 'income' ? 'text-success' : 'text-error'">
-              {{ transaction.amount > 0 ? '+' : '' }}${{ transaction.amount.toFixed(2) }}
-            </div>
-            <button class="btn-icon" (click)="deleteTransaction(transaction.id)" [disabled]="isLoading" style="margin-left: 10px; background: none; border: none; cursor: pointer;">
-              <lucide-icon [img]="Trash2" [size]="18" class="text-error"></lucide-icon>
-            </button>
-          </div>
-        </div>
+      <div class="insights-footer">
+        <span class="mono-value">Powered by AI</span>
       </div>
     </div>
+
+    <!-- Card 3 — Recent Transactions -->
+    <div class="card-panel card-transactions">
+      <div class="card-head">
+        <h3>Recent transactions</h3>
+        <button class="btn-dot">
+          <lucide-icon [img]="Search" [size]="16"></lucide-icon>
+        </button>
+      </div>
+      <div class="tx-list">
+        <div *ngFor="let transaction of transactions.slice(0, 6)" class="tx-row">
+          <span class="tx-merchant">{{ transaction.description || 'Transaction' }}</span>
+          <span class="tx-category-pill"
+                [ngClass]="{
+                  'pill-purple': transaction.category === 'Multimedia' || transaction.category === 'Entertainment',
+                  'pill-blue': transaction.category === 'Transfer',
+                  'pill-rose': transaction.category === 'Beauty' || transaction.category === 'Shopping'
+                }">
+            {{ transaction.category || transaction.type }}
+          </span>
+          <span class="tx-amount mono-value" [ngClass]="transaction.type === 'income' ? 'text-success' : ''">
+            {{ transaction.amount > 0 ? '+' : '' }}${{ transaction.amount.toFixed(2) }}
+          </span>
+          <button class="btn-dot btn-dot--sm">
+            <lucide-icon [img]="MoreHorizontal" [size]="14"></lucide-icon>
+          </button>
+        </div>
+        <div *ngIf="transactions.length === 0" class="empty-msg mono-value">No transactions yet</div>
+      </div>
+    </div>
+
   </section>
 
-
+  <!-- ═══════════ MODALS ═══════════ -->
 
   <!-- Add Account Modal -->
   <div *ngIf="showAddAccountModal" class="modal-overlay" (click)="showAddAccountModal = false">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Add New Account</h2>
         <button class="close-btn" (click)="showAddAccountModal = false">×</button>
@@ -219,7 +340,7 @@
 
   <!-- Add Transaction Modal -->
   <div *ngIf="showAddTransactionModal" class="modal-overlay" (click)="showAddTransactionModal = false">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Add Transaction</h2>
         <button class="close-btn" (click)="showAddTransactionModal = false">×</button>
@@ -237,14 +358,6 @@
           <select [(ngModel)]="newTransactionType">
             <option value="income">Income</option>
             <option value="expense">Expense</option>
-            <option value="transfer">Transfer</option>
-          </select>
-        </div>
-        <div class="form-group" *ngIf="newTransactionType === 'transfer'">
-          <label>To Account</label>
-          <select [(ngModel)]="newTransactionToAccountId">
-            <option value="">Select destination account</option>
-            <option *ngFor="let account of accounts" [value]="account.id" [disabled]="account.id === newTransactionAccountId">{{ account.name }}</option>
           </select>
         </div>
         <div class="form-group">
@@ -275,7 +388,7 @@
 
   <!-- Edit Account Modal -->
   <div *ngIf="showEditAccountModal" class="modal-overlay" (click)="showEditAccountModal = false">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content glass-panel" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Edit Account</h2>
         <button class="close-btn" (click)="showEditAccountModal = false">×</button>
